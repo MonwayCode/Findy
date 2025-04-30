@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Findy</string>
+    <string name="btn_add_new_shop">Dodaj nowy sklep</string>
+    <string name="txt_shop_list">Lista sklepów</string>
+    <string name="btn_add_shop">Dodaj nowy sklep</string>
+    <string name="txt_shop_name">Nazwa sklepu:</string>
+    <string name="txt_shop_address">Adres:</string>
+    <string name="btn_save">Zapisz</string>
+</resources>
