@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -35,6 +34,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -49,18 +53,51 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private CheckBox onlyOpenNowCheckbox;
     private Spinner radiusSpinner;
     private Button searchButton;
+    private static final String FILENAME = "last_selected_brand.txt";
+
+    private void saveSelectedBrandToFile(String brandName) {
+        try (FileOutputStream fos = openFileOutput(FILENAME, MODE_PRIVATE)) {
+            fos.write(brandName.getBytes());
+            Toast.makeText(this, "Zapisano wybraną firmę", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Błąd zapisu", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String readSelectedBrandFromFile() {
+        StringBuilder stringBuilder = new StringBuilder();
+        try (FileInputStream fis = openFileInput(FILENAME);
+             InputStreamReader isr = new InputStreamReader(fis);
+             BufferedReader br = new BufferedReader(isr)) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+        } catch (Exception e) {
+            // Plik może nie istnieć - to normalne na pierwszym uruchomieniu
+            return "";
+        }
+        return stringBuilder.toString();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main); // TO MUSI BYĆ PIERWSZE przed findViewById
 
         requestQueue = Volley.newRequestQueue(this);
 
+        // Inicjalizacja widoków po załadowaniu layoutu
         searchInput = findViewById(R.id.searchInput);
         onlyOpenNowCheckbox = findViewById(R.id.onlyOpenNowCheckbox);
         radiusSpinner = findViewById(R.id.radiusSpinner);
         searchButton = findViewById(R.id.searchButton);
+
+        Button btnSaveSelection = findViewById(R.id.btnSaveSelection);
+        Button btnChooseBrand = findViewById(R.id.btnChooseBrand);
 
         ArrayAdapter<CharSequence> radiusAdapter = ArrayAdapter.createFromResource(
                 this,
@@ -83,19 +120,40 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        btnChooseBrand.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CategoriesActivity.class);
+            startActivityForResult(intent, REQUEST_CATEGORY_AND_BRAND);
+        });
+
+        btnSaveSelection.setOnClickListener(v -> {
+            String brandToSave = searchInput.getText().toString().trim();
+            if (!brandToSave.isEmpty()) {
+                saveSelectedBrandToFile(brandToSave);
+            } else {
+                Toast.makeText(this, "Brak wybranej firmy do zapisania", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Inicjalizacja mapy
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
 
+        // Lokalizacja
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        Button btnChooseBrand = findViewById(R.id.btnChooseBrand);
-        btnChooseBrand.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CategoriesActivity.class);
-            startActivityForResult(intent, REQUEST_CATEGORY_AND_BRAND);
-        });
+        // Odczytaj ostatnią zapisaną markę
+        String savedBrand = readSelectedBrandFromFile();
+        if (!savedBrand.isEmpty()) {
+            selectedBrand = savedBrand;
+            searchInput.setText(selectedBrand);
+            // Szukaj po załadowaniu mapy
+            if (mMap != null) {
+                performSearch();
+            }
+        }
     }
 
     @Override
@@ -226,7 +284,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (data.hasExtra("selectedBrand")) {
                 selectedBrand = data.getStringExtra("selectedBrand");
                 searchInput.setText(selectedBrand);
-                Log.d("FINDY_DEBUG", "Wybrana marka z BrandsActivity: " + selectedBrand);
                 if (mMap != null) {
                     performSearch();
                 }
