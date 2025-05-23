@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Findy"
         tools:targetApi="31">
+        <activity
+            android:name=".AddBrandActivity"
+            android:exported="false" />
         <activity android:name=".CategoriesActivity" />
         <activity android:name=".BrandsActivity" />
         <activity

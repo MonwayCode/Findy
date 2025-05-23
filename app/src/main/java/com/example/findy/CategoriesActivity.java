@@ -2,7 +2,9 @@ package com.example.findy;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +22,7 @@ public class CategoriesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_categories);
 
         ListView listView = findViewById(R.id.categoriesListView);
+        Button addBrandButton = findViewById(R.id.addBrandButton);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
@@ -32,22 +35,26 @@ public class CategoriesActivity extends AppCompatActivity {
             String selectedCategory = categories.get(position);
             Intent intent = new Intent(this, BrandsActivity.class);
             intent.putExtra("Kategoria", selectedCategory);
-            startActivityForResult(intent, 101); //
+            startActivityForResult(intent, 101);
         });
 
+        addBrandButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AddBrandActivity.class);
+            startActivity(intent);
+        });
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 101 && resultCode == RESULT_OK && data != null) {
-            String selectedBrand = data.getStringExtra("selectedBrand");
-
-            // ZWRÓĆ to do MainActivity!
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra("selectedBrand", selectedBrand);
-            setResult(RESULT_OK, resultIntent);
-            finish(); // zakończ CategoriesActivity i wróć do MainActivity
+            if (data.hasExtra("selectedBrand")) {
+                String selectedBrand = data.getStringExtra("selectedBrand");
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("selectedBrand", selectedBrand);
+                setResult(RESULT_OK, resultIntent);
+                finish();
+            }
         }
     }
-
 }

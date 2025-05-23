@@ -7,4 +7,9 @@
         <item>20 km</item>
         <item>50 km</item>
     </string-array>
+    <string-array name="categories_array">
+        <item>Jedzenie</item>
+        <item>Kawiarnie</item>
+        <item>Sklepy</item>
+    </string-array>
 </resources>
