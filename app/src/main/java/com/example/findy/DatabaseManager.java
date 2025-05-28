@@ -16,15 +16,15 @@ public class DatabaseManager {
         dbHelper = new DatabaseHelper(context);
     }
 
-    public void open() {
+    public void open() { //otwarcie połączenia z bazą
         database = dbHelper.getWritableDatabase();
     }
 
-    public void close() {
+    public void close() {//zamknięcie połącznia z bazą
         dbHelper.close();
     }
 
-    public List<Brand> getBrandsByCategory(String category) {
+        public List<Brand> getBrandsByCategory(String category) {
         List<Brand> brands = new ArrayList<>();
         String selection = DatabaseHelper.COLUMN_CATEGORY + "=?";
         String[] selectionArgs = { category };

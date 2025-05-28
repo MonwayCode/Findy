@@ -67,7 +67,7 @@ public class AddBrandActivity extends AppCompatActivity {
         Toast.makeText(this, "Dodano nową firmę: " + name, Toast.LENGTH_SHORT).show();
         finish();
     }
-
+    
     @Override
     protected void onDestroy() {
         super.onDestroy();

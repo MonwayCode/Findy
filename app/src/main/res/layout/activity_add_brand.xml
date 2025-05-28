@@ -15,13 +15,6 @@
             android:layout_height="wrap_content"
             android:hint="Nazwa marki"/>
 
-        <EditText
-            android:id="@+id/descInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Opis"
-            android:inputType="textMultiLine"
-            android:minLines="3"/>
 
         <Spinner
             android:id="@+id/categorySpinner"
